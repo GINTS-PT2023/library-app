@@ -28,4 +28,9 @@ class Reader extends Model
     {
         return $this->belongsToMany(Book::class, 'rentals');
     }
+
+    public function fine()
+    {
+        return $this->hasOne(ReaderFine::class, 'reader_id');
+    }
 }
