@@ -21,28 +21,51 @@ return new class extends Migration
             $table->timestamp('changed_at')->useCurrent();
         });
 
-        // SQLite trigger to log changes to available_copies and total_copies
-        DB::unprepared('
-            CREATE TRIGGER log_book_copies_update
-            AFTER UPDATE OF available_copies, total_copies ON books
-            BEGIN
-                INSERT INTO book_logs (book_id, column_name, old_value, new_value)
-                SELECT 
-                    OLD.id, 
-                    \'available_copies\', 
-                    OLD.available_copies, 
-                    NEW.available_copies
-                WHERE OLD.available_copies <> NEW.available_copies;
+        $driver = DB::getDriverName();
 
-                INSERT INTO book_logs (book_id, column_name, old_value, new_value)
-                SELECT 
-                    OLD.id, 
-                    \'total_copies\', 
-                    OLD.total_copies, 
-                    NEW.total_copies
-                WHERE OLD.total_copies <> NEW.total_copies;
-            END;
-        ');
+        if ($driver === 'sqlite') {
+            DB::unprepared('
+                CREATE TRIGGER log_book_copies_update
+                AFTER UPDATE OF available_copies, total_copies ON books
+                BEGIN
+                    INSERT INTO book_logs (book_id, column_name, old_value, new_value)
+                    SELECT 
+                        OLD.id, 
+                        \'available_copies\', 
+                        OLD.available_copies, 
+                        NEW.available_copies
+                    WHERE OLD.available_copies <> NEW.available_copies;
+
+                    INSERT INTO book_logs (book_id, column_name, old_value, new_value)
+                    SELECT 
+                        OLD.id, 
+                        \'total_copies\', 
+                        OLD.total_copies, 
+                        NEW.total_copies
+                    WHERE OLD.total_copies <> NEW.total_copies;
+                END;
+            ');
+        } elseif ($driver === 'pgsql') {
+            DB::unprepared("
+                CREATE OR REPLACE FUNCTION log_book_changes() RETURNS TRIGGER AS $$
+                BEGIN
+                    IF OLD.available_copies <> NEW.available_copies THEN
+                        INSERT INTO book_logs (book_id, column_name, old_value, new_value)
+                        VALUES (OLD.id, 'available_copies', OLD.available_copies, NEW.available_copies);
+                    END IF;
+                    IF OLD.total_copies <> NEW.total_copies THEN
+                        INSERT INTO book_logs (book_id, column_name, old_value, new_value)
+                        VALUES (OLD.id, 'total_copies', OLD.total_copies, NEW.total_copies);
+                    END IF;
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER log_book_copies_update
+                AFTER UPDATE OF available_copies, total_copies ON books
+                FOR EACH ROW EXECUTE FUNCTION log_book_changes();
+            ");
+        }
     }
 
     /**
@@ -50,7 +73,15 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::unprepared('DROP TRIGGER IF EXISTS log_book_copies_update');
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'sqlite') {
+            DB::unprepared('DROP TRIGGER IF EXISTS log_book_copies_update');
+        } elseif ($driver === 'pgsql') {
+            DB::unprepared('DROP TRIGGER IF EXISTS log_book_copies_update ON books');
+            DB::unprepared('DROP FUNCTION IF EXISTS log_book_changes()');
+        }
+        
         Schema::dropIfExists('book_logs');
     }
 };

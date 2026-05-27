@@ -30,8 +30,21 @@ return new class extends Migration
                 FROM rentals
                 GROUP BY reader_id
             ");
+        } elseif ($driver === 'pgsql') {
+            // For PostgreSQL, we can use a VIEW with Postgres-specific date arithmetic.
+            DB::statement("DROP VIEW IF EXISTS reader_fines");
+            DB::statement("
+                CREATE VIEW reader_fines AS
+                SELECT 
+                    reader_id,
+                    SUM(
+                        GREATEST(0, COALESCE(returned_at, CURRENT_TIMESTAMP)::date - due_at::date) * 0.50
+                    ) AS total_fine
+                FROM rentals
+                GROUP BY reader_id
+            ");
         } else {
-            // For MySQL/MariaDB/PostgreSQL, we could create a real stored procedure.
+            // For MySQL/MariaDB, we could create a real stored procedure.
             // This is a placeholder example for MySQL.
             DB::unprepared("DROP PROCEDURE IF EXISTS calculate_reader_fine");
             DB::unprepared("
@@ -55,7 +68,7 @@ return new class extends Migration
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
 
-        if ($driver === 'sqlite') {
+        if ($driver === 'sqlite' || $driver === 'pgsql') {
             DB::statement("DROP VIEW IF EXISTS reader_fines");
         } else {
             DB::unprepared("DROP PROCEDURE IF EXISTS calculate_reader_fine");

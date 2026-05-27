@@ -18,7 +18,7 @@ return new class extends Migration
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
 
-        $readerNameSql = $driver === 'sqlite' 
+        $readerNameSql = ($driver === 'sqlite' || $driver === 'pgsql') 
             ? "readers.first_name || ' ' || readers.last_name" 
             : "CONCAT(readers.first_name, ' ', readers.last_name)";
 
