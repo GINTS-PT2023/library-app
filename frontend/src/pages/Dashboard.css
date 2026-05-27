@@ -3,10 +3,40 @@
   z-index: 1;
 }
 
+.dashboard-layout {
+  display: flex;
+  gap: 4rem;
+  align-items: flex-start;
+}
+
+.stats-column {
+  flex: 1;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
+}
+
+.visualizer-column {
+  width: 400px;
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-layout {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .visualizer-column {
+    width: 100%;
+    position: static;
+  }
 }
 
 .stat-card {
