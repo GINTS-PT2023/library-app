@@ -25,12 +25,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html, body {
   margin: 0;
-  display: flex;
-  min-height: 100vh;
-  overflow-x: hidden;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   background-color: var(--bg-deep);
+}
+
+body {
+  display: flex;
 }
 
 /* Global Scanning Line Effect */
