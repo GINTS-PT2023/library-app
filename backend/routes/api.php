@@ -12,4 +12,5 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('books', BookController::class);
 Route::apiResource('readers', ReaderController::class);
+Route::get('rentals/overdue', [RentalController::class, 'overdue']);
 Route::apiResource('rentals', RentalController::class);

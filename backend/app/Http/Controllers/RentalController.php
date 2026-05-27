@@ -17,6 +17,14 @@ class RentalController extends Controller
         return Rental::with(['book', 'reader'])->get();
     }
 
+    /**
+     * Display a listing of overdue rentals.
+     */
+    public function overdue()
+    {
+        return \App\Models\OverdueRental::all();
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

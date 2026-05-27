@@ -18,6 +18,7 @@ export const readersApi = {
 
 export const rentalsApi = {
   getAll: () => client.get('/rentals'),
+  getOverdue: () => client.get('/rentals/overdue'),
   getById: (id) => client.get(`/rentals/${id}`),
   create: (data) => client.post('/rentals', data),
   update: (id, data) => client.put(`/rentals/${id}`, data),

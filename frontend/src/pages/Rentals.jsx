@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, CheckCircle, Search } from 'lucide-react';
+import { Plus, CheckCircle, Search, CalendarDays } from 'lucide-react';
 import { rentalsApi, booksApi, readersApi } from '../api/services';
 import Modal from '../components/Modal';
 import './Table.css';
@@ -10,6 +10,7 @@ const Rentals = () => {
   const [readers, setReaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterDate, setFilterDate] = useState(''); // Handles the date filter input
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     book_id: '',
@@ -73,15 +74,28 @@ const Rentals = () => {
     }
   };
 
-  const filteredRentals = rentals.filter(rental =>
-    rental.book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    `${rental.reader.first_name} ${rental.reader.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  // Helper function to format strings to localized dates
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString();
   };
+
+  // Filter rentals by text search AND/OR selected date (matching against rented_at or due_at)
+  const filteredRentals = rentals.filter(rental => {
+    const matchesText =
+      rental.book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${rental.reader.first_name} ${rental.reader.last_name}`.toLowerCase().includes(searchTerm.toLowerCase());
+
+    let matchesDate = true;
+    if (filterDate) {
+      const targetDateStr = new Date(filterDate).toLocaleDateString();
+      const rentedAtStr = formatDate(rental.rented_at);
+      const dueAtStr = formatDate(rental.due_at);
+      matchesDate = rentedAtStr === targetDateStr || dueAtStr === targetDateStr;
+    }
+
+    return matchesText && matchesDate;
+  });
 
   return (
     <div className="page-container">
@@ -95,6 +109,27 @@ const Rentals = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
+        {/* Integrated date filter with optional clear button capability */}
+        <div className="search-bar date-filter-bar">
+          <CalendarDays size={20} color="#94a3b8" />
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            title="Filter by Rented or Due date"
+          />
+          {filterDate && (
+            <button
+              className="clear-date-btn"
+              onClick={() => setFilterDate('')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', paddingRight: '8px' }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
         <button className="btn btn-primary" onClick={handleOpenModal}>
           <Plus size={20} />
           <span>New Rental</span>

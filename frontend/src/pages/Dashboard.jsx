@@ -8,20 +8,23 @@ const Dashboard = () => {
     books: 0,
     readers: 0,
     rentals: 0,
+    overdue: 0,
   });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [books, readers, rentals] = await Promise.all([
+        const [books, readers, rentals, overdue] = await Promise.all([
           booksApi.getAll(),
           readersApi.getAll(),
           rentalsApi.getAll(),
+          rentalsApi.getOverdue(),
         ]);
         setStats({
           books: books.data.length,
           readers: readers.data.length,
           rentals: rentals.data.filter(r => !r.returned_at).length,
+          overdue: overdue.data.length,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -34,6 +37,7 @@ const Dashboard = () => {
     { label: 'Total Books', value: stats.books, icon: Book, color: '#3b82f6' },
     { label: 'Total Readers', value: stats.readers, icon: Users, color: '#10b981' },
     { label: 'Active Rentals', value: stats.rentals, icon: ClipboardList, color: '#f59e0b' },
+    { label: 'Overdue Rentals', value: stats.overdue, icon: ClipboardList, color: '#ef4444' },
   ];
 
   return (
