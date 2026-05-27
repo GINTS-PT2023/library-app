@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Book, Users, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Book, Users, ClipboardList, AlertCircle } from 'lucide-react';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -11,6 +11,7 @@ const Layout = ({ children }) => {
     { path: '/books', label: 'Books', icon: Book },
     { path: '/readers', label: 'Readers', icon: Users },
     { path: '/rentals', label: 'Rentals', icon: ClipboardList },
+    { path: '/overdue', label: 'Overdue', icon: AlertCircle },
   ];
 
   return (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Book, Users, ClipboardList } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Book, Users, ClipboardList, AlertCircle } from 'lucide-react';
 import { booksApi, readersApi, rentalsApi } from '../api/services';
 import './Dashboard.css';
 
@@ -34,10 +35,10 @@ const Dashboard = () => {
   }, []);
 
   const cards = [
-    { label: 'Total Books', value: stats.books, icon: Book, color: '#3b82f6' },
-    { label: 'Total Readers', value: stats.readers, icon: Users, color: '#10b981' },
-    { label: 'Active Rentals', value: stats.rentals, icon: ClipboardList, color: '#f59e0b' },
-    { label: 'Overdue Rentals', value: stats.overdue, icon: ClipboardList, color: '#ef4444' },
+    { label: 'Total Books', value: stats.books, icon: Book, color: '#3b82f6', path: '/books' },
+    { label: 'Total Readers', value: stats.readers, icon: Users, color: '#10b981', path: '/readers' },
+    { label: 'Active Rentals', value: stats.rentals, icon: ClipboardList, color: '#f59e0b', path: '/rentals' },
+    { label: 'Overdue Rentals', value: stats.overdue, icon: AlertCircle, color: '#ef4444', path: '/overdue' },
   ];
 
   return (
@@ -45,8 +46,8 @@ const Dashboard = () => {
       <div className="stats-grid">
         {cards.map((card) => {
           const Icon = card.icon;
-          return (
-            <div key={card.label} className="stat-card">
+          const CardContent = (
+            <>
               <div className="stat-icon" style={{ backgroundColor: card.color }}>
                 <Icon size={24} color="#fff" />
               </div>
@@ -54,6 +55,16 @@ const Dashboard = () => {
                 <h3>{card.label}</h3>
                 <p>{card.value}</p>
               </div>
+            </>
+          );
+
+          return card.path ? (
+            <Link key={card.label} to={card.path} className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+              {CardContent}
+            </Link>
+          ) : (
+            <div key={card.label} className="stat-card">
+              {CardContent}
             </div>
           );
         })}
