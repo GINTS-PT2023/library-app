@@ -40,6 +40,18 @@ const Layout = ({ children }) => {
       <main className="main-content">
         <header className="top-header">
           <h2>{navItems.find(n => n.path === location.pathname)?.label || 'Library'}</h2>
+          <div className="system-status">
+            <div className="status-item">
+              <div className="status-dot"></div>
+              <span>CORE_SYSTEM: ONLINE</span>
+            </div>
+            <div className="status-item">
+              <span>LATENCY: 24ms</span>
+            </div>
+            <div className="status-item">
+              <span>UPLOADING_DATA...</span>
+            </div>
+          </div>
         </header>
         <section className="content">
           {children}

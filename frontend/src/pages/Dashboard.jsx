@@ -47,23 +47,29 @@ const Dashboard = () => {
         {cards.map((card) => {
           const Icon = card.icon;
           const CardContent = (
-            <>
-              <div className="stat-icon" style={{ backgroundColor: card.color }}>
-                <Icon size={24} color="#fff" />
+            <div 
+              className="stat-card" 
+              style={{ 
+                '--card-color': card.color,
+                '--card-color-glow': `${card.color}44`
+              }}
+            >
+              <div className="stat-icon" style={{ backgroundColor: `${card.color}22`, border: `1px solid ${card.color}` }}>
+                <Icon size={24} color={card.color} />
               </div>
               <div className="stat-info">
                 <h3>{card.label}</h3>
                 <p>{card.value}</p>
               </div>
-            </>
+            </div>
           );
 
           return card.path ? (
-            <Link key={card.label} to={card.path} className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link key={card.label} to={card.path} style={{ textDecoration: 'none', color: 'inherit' }}>
               {CardContent}
             </Link>
           ) : (
-            <div key={card.label} className="stat-card">
+            <div key={card.label}>
               {CardContent}
             </div>
           );

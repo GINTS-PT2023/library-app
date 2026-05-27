@@ -29,11 +29,11 @@ const OverdueRentals = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444' }}>
+      <div className="page-header" style={{ borderColor: '#ef4444' }}>
+        <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#ef4444', textShadow: '0 0 10px rgba(239, 68, 68, 0.3)' }}>
           <AlertCircle size={24} />
-          Overdue Rentals Report
-        </h2>
+          OVERDUE_RENTALS_REPORT
+        </h1>
       </div>
 
       <div className="table-container">
@@ -89,10 +89,11 @@ const OverdueRentals = () => {
         </table>
       </div>
       
-      <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '8px' }}>
-        <p style={{ color: '#991b1b', fontSize: '14px', margin: 0 }}>
-          <strong>Note:</strong> This report is generated directly from a database View. 
-          It automatically identifies all rentals that are past their due date and haven't been returned.
+      <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', position: 'relative' }}>
+        <p style={{ color: '#ef4444', fontSize: '0.8rem', margin: 0, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '1px' }}>
+          <strong style={{ display: 'block', marginBottom: '0.5rem' }}>[ SYSTEM_ALERT ]</strong>
+          PROTOCOL: AUTOMATIC_OVERDUE_DETECTION_ACTIVE. THIS DATA IS STREAMED DIRECTLY FROM THE NEURAL_VIEW_LAYER. 
+          ALL IDENTIFIED SUBJECTS ARE MARKED FOR IMMEDIATE ACTION.
         </p>
       </div>
     </div>
