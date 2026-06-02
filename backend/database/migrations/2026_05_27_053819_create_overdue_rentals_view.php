@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("DROP VIEW IF EXISTS overdue_rentals");
-        
-        // Using SQLite syntax for concatenation (||) as per the project's default configuration.
-        // For MySQL, it would be CONCAT(readers.first_name, ' ', readers.last_name).
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
+
+        if ($driver === 'mongodb') {
+            // MongoDB doesn't use SQL views in this way.
+            return;
+        }
+
+        DB::statement("DROP VIEW IF EXISTS overdue_rentals");
 
         $readerNameSql = ($driver === 'sqlite' || $driver === 'pgsql') 
             ? "readers.first_name || ' ' || readers.last_name" 
@@ -46,6 +49,13 @@ return new class extends Migration
      */
     public function down(): void
     {
+        $connection = config('database.default');
+        $driver = config("database.connections.{$connection}.driver");
+
+        if ($driver === 'mongodb') {
+            return;
+        }
+
         DB::statement("DROP VIEW IF EXISTS overdue_rentals");
     }
 };

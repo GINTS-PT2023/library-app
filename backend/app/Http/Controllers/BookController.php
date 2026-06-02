@@ -10,9 +10,28 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Book::all();
+        $query = Book::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $driver = $query->getConnection()->getDriverName();
+
+            // Use Full-Text search if the driver is not SQLite (supports MySQL/PostgreSQL)
+            if ($driver !== 'sqlite') {
+                $query->whereFullText(['title', 'author'], $search);
+            } else {
+                // Fallback to LIKE for SQLite or other drivers without FULLTEXT index
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', "%{$search}%")
+                      ->orWhere('author', 'LIKE', "%{$search}%")
+                      ->orWhere('isbn', 'LIKE', "%{$search}%");
+                });
+            }
+        }
+
+        return $query->paginate($request->input('per_page', 10));
     }
 
     public function store(Request $request)
@@ -55,5 +74,17 @@ class BookController extends Controller
         $book->delete();
 
         return response()->noContent();
+    }
+
+    public function copy(Book $book)
+    {
+        $copy = $book->replicate();
+        $copy->title = 'Copy of ' . $book->title;
+        $copy->isbn = $book->isbn . '-COPY-' . now()->timestamp; // Avoid unique constraint
+        $copy->copied_from_id = $book->id;
+        $copy->copied_at = now();
+        $copy->save();
+
+        return $copy;
     }
 }

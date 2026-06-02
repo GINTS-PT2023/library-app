@@ -14,6 +14,12 @@ return new class extends Migration
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
 
+        if ($driver === 'mongodb') {
+            // MongoDB doesn't use SQL views/procedures in this way.
+            // Fine calculations should be handled via aggregation pipelines or application logic.
+            return;
+        }
+
         if ($driver === 'sqlite') {
             // SQLite doesn't support stored procedures, so we use a VIEW to centralize the logic.
             // This view calculates the total fine for each reader based on overdue rentals.
@@ -67,6 +73,10 @@ return new class extends Migration
     {
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
+
+        if ($driver === 'mongodb') {
+            return;
+        }
 
         if ($driver === 'sqlite' || $driver === 'pgsql') {
             DB::statement("DROP VIEW IF EXISTS reader_fines");

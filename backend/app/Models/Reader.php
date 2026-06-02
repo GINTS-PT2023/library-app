@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\ReaderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Reader extends Model
 {
@@ -32,5 +33,13 @@ class Reader extends Model
     public function fine()
     {
         return $this->hasOne(ReaderFine::class, 'reader_id');
+    }
+
+    /**
+     * Get all of the reader's comments.
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

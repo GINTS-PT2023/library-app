@@ -10,6 +10,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('books/{book}/copy', [BookController::class, 'copy']);
 Route::apiResource('books', BookController::class);
 Route::apiResource('readers', ReaderController::class);
 Route::get('rentals/overdue', [RentalController::class, 'overdue']);

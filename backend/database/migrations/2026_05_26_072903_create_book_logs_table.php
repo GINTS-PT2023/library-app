@@ -23,6 +23,10 @@ return new class extends Migration
 
         $driver = DB::getDriverName();
 
+        if ($driver === 'mongodb') {
+            return;
+        }
+
         if ($driver === 'sqlite') {
             DB::unprepared('
                 CREATE TRIGGER log_book_copies_update
@@ -74,6 +78,11 @@ return new class extends Migration
     public function down(): void
     {
         $driver = DB::getDriverName();
+
+        if ($driver === 'mongodb') {
+            Schema::dropIfExists('book_logs');
+            return;
+        }
         
         if ($driver === 'sqlite') {
             DB::unprepared('DROP TRIGGER IF EXISTS log_book_copies_update');

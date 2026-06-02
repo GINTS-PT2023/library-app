@@ -2,13 +2,18 @@
 
 use App\Models\Book;
 
-test('can list books', function () {
-    Book::factory(5)->create();
+test('can list books with pagination', function () {
+    Book::factory(15)->create();
 
-    $response = $this->getJson('/api/books');
+    $response = $this->getJson('/api/books?per_page=10');
 
     $response->assertStatus(200)
-        ->assertJsonCount(5);
+        ->assertJsonStructure([
+            'data',
+            'links',
+            'meta'
+        ])
+        ->assertJsonCount(10, 'data');
 });
 
 test('can create a book', function () {
@@ -50,11 +55,22 @@ test('can update a book', function () {
     $this->assertDatabaseHas('books', array_merge(['id' => $book->id], $newData));
 });
 
-test('can delete a book', function () {
+test('can search books', function () {
+    Book::factory()->create(['title' => 'Laravel Deep Dive', 'author' => 'John Doe']);
+    Book::factory()->create(['title' => 'Vue.js Guide', 'author' => 'Jane Smith']);
+
+    $response = $this->getJson('/api/books?search=Laravel');
+
+    $response->assertStatus(200)
+        ->assertJsonCount(1, 'data')
+        ->assertJsonFragment(['title' => 'Laravel Deep Dive']);
+});
+
+test('can delete a book (soft delete)', function () {
     $book = Book::factory()->create();
 
     $response = $this->deleteJson("/api/books/{$book->id}");
 
     $response->assertStatus(204);
-    $this->assertDatabaseMissing('books', ['id' => $book->id]);
+    $this->assertSoftDeleted('books', ['id' => $book->id]);
 });
